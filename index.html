@@ -34,44 +34,101 @@
         <h1>
 <a name="whats-gdub" class="anchor" href="#whats-gdub"><span class="octicon octicon-link"></span></a>What's gdub?</h1>
 
-<p>gdub (<code>gw</code> on the command line) is a <code>gradle</code> / <code>gradlew</code> wrapper. This is 
-not to be confused with the <a href="http://www.gradle.org/">Gradle Wrapper</a>. gdub
-actually uses the Gradle Wrapper on projects where one is configured, but 
-falls back to use the system-installed Gradle if a wrapper is not availble.</p>
+<p>gdub (<code>gw</code> on the command line) is a <code>gradle</code> / <code>gradlew</code> wrapper. Not to be
+confused with the <a href="http://www.gradle.org">Gradle</a> <a href="http://www.gradle.org/docs/current/userguide/gradle_wrapper.html">Wrapper</a>, <code>gw</code> uses the Gradle Wrapper on
+projects where one is configured, and falls back to use the <code>gradle</code> from the
+<code>$PATH</code> if a wrapper is not available. Also, <code>gw</code> is 66% shorter to type than <code>gradle</code>
+and 78% shorter to type than <code>./gradlew</code>.</p>
+
+<h1>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h1>
+
+<h2>
+<a name="installation-with-bpkg" class="anchor" href="#installation-with-bpkg"><span class="octicon octicon-link"></span></a>Installation with <code>bpkg</code>
+</h2>
+
+<p>If you use <a href="http://bpkg.io">bpkg</a>, you may install like so:</p>
+
+<div class="highlight highlight-bash"><pre>bpkg install dougborg/gdub -g
+</pre></div>
+
+<h2>
+<a name="installing-gdub-from-source" class="anchor" href="#installing-gdub-from-source"><span class="octicon octicon-link"></span></a>Installing gdub from source</h2>
+
+<p>You will probably want to <a href="http://www.gradle.org/installation">install Gradle</a> first. While this is not
+technically necessary if all your projects are using a Gradle Wrapper, it is a
+good idea to have the latest version of <code>gradle</code> available system-wide because
+some handy Gradle features are available outside the context of an existing
+project.</p>
+
+<p>Check out a copy of the gdub repository. Then, either add the gdub <code>bin</code>
+directory to your <code>$PATH</code>, or run the provided <code>install</code> command with the
+location to the prefix in which you want to install gdub. The default prefix is
+<code>/usr/local</code>.</p>
+
+<p>For example, to install gdub into <code>/usr/local/bin</code>:</p>
+
+<div class="highlight highlight-bash"><pre>git clone https://github.com/dougborg/gdub.git
+<span class="nb">cd </span>gdub
+./install
+</pre></div>
+
+<p>Note: you may need to run <code>./install</code> with <code>sudo</code> if you do not have
+permission to write to the installation prefix.</p>
+
+<h2>
+<a name="aliasing-the-gradle-command" class="anchor" href="#aliasing-the-gradle-command"><span class="octicon octicon-link"></span></a>Aliasing the <code>gradle</code> command</h2>
+
+<p>For maximum fidelity add a <code>gradle</code> alias to <code>gw</code> to your shell's configuration
+file.</p>
+
+<p>Example <em>bash</em>:</p>
+
+<div class="highlight highlight-bash"><pre><span class="nb">echo</span> <span class="s2">"alias gradle=gw"</span> &gt;&gt; ~/.bashrc
+<span class="nb">source</span> ~/.bashrc
+</pre></div>
+
+<p>From now on you can just type <code>gradle ...</code> from wherever you are and <code>gw</code> takes
+care of the rest. Happiness ensues!</p>
+
+<h1>
+<a name="why-gdub" class="anchor" href="#why-gdub"><span class="octicon octicon-link"></span></a>Why gdub?</h1>
 
 <h2>
 <a name="the-problems-with-gradle-and-gradlew" class="anchor" href="#the-problems-with-gradle-and-gradlew"><span class="octicon octicon-link"></span></a>The problems with <code>gradle</code> and <code>gradlew</code>
 </h2>
 
-<p>gdub is a convienence for developers running local gradle commands and addresses
-a few minor shortcomings of <code>gradle</code> and <code>gradlew</code>'s commandline behaviour. These
-are known issues, and they are set to be addressed in future versions of Gradle. If
-you are interested in the discussions surrounding them, check out:</p>
+<p>gdub is a convenience for developers running local Gradle commands and addresses
+a few minor shortcomings of <code>gradle</code> and <code>gradlew</code>'s commandline behaviour.
+These are known issues, and they are set to be addressed in future versions of
+Gradle. If you are interested in the discussions surrounding them, check out:</p>
 
 <ul>
-<li><a href="http://issues.gradle.org/browse/GRADLE-2429">Issue GRADLE-2429</a></li>
-<li><a href="http://forums.gradle.org/gradle/topics/gradlew_scripts_in_gradle_bin_to_find_gradlew_scripts_upwards_within_project_space">Spencer Allain's Gradle Forum Post</a></li>
-<li><a href="http://forums.gradle.org/gradle/topics/is_there_a_way_to_make_gradlew_available_within_all_sub_directories">Phil Swenson's Gradle Forum Post</a></li>
-</ul><p>Here are the issues I feel are most important, and the ones gdub attempts to
+<li><a href="http://issues.Gradle.org/browse/Gradle-2429">Issue Gradle-2429</a></li>
+<li><a href="http://gsfn.us/t/33g0l">Spencer Allain's Gradle Forum Post</a></li>
+<li><a href="http://gsfn.us/t/39h67">Phil Swenson's Gradle Forum Post</a></li>
+</ul>
+
+<p>Here are the issues I feel are most important, and the ones gdub attempts to
 address:</p>
 
 <h3>
-<a name="you-have-to-provide-a-relative-path-to-buildgradle" class="anchor" href="#you-have-to-provide-a-relative-path-to-buildgradle"><span class="octicon octicon-link"></span></a>You have to provide a relative path to <code>build.gradle</code>
+<a name="you-have-to-provide-a-relative-path-to-buildgradle" class="anchor" href="#you-have-to-provide-a-relative-path-to-buildgradle"><span class="octicon octicon-link"></span></a>You have to provide a relative path to <code>build.Gradle</code>
 </h3>
 
-<p>If you are using the <code>gradle</code> command, and you are not in the same directory
-as the <code>build.gradle</code> file you want to run, you have to provide <code>gradle</code> the path.
+<p>If you are using the <code>gradle</code> command, and you are not in the same directory as
+the <code>build.gradle</code> file you want to run, you have to provide <code>gradle</code> the path.
 Depending on where you happen to be, this can be somewhat cumbersome:</p>
 
-<pre><code>~/myProject/src/main/java/org/project/stuff$ gradle -b ../../../../../../build.gradle build
-# Or maybe:
-~/myProject/src/main/java/org/project/stuff$ gradle -b ~/myProject/build.gradle build    
-</code></pre>
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span><span class="nb">pwd</span>
+~/myProject/src/main/java/org/project
+<span class="nv">$ </span>gradle -b ../../../../../build.gradle build
+</pre></div>
 
 <p>With <code>gw</code>, this becomes:</p>
 
-<pre><code>~/myProject/src/main/java/org/project/stuff$ gw build
-</code></pre>
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>gw build
+</pre></div>
 
 <h3>
 <a name="you-have-to-provide-a-relative-path-to-gradlew" class="anchor" href="#you-have-to-provide-a-relative-path-to-gradlew"><span class="octicon octicon-link"></span></a>You have to provide a relative path to <code>gradlew</code>
@@ -80,13 +137,17 @@ Depending on where you happen to be, this can be somewhat cumbersome:</p>
 <p>If you are using <code>gradlew</code> and you want to run your build, you need to do
 something similiar and provide the relative path to the <code>gradlew</code> script:</p>
 
-<pre><code>~/myProject/src/main/java/org/project/stuff$ ../../../../../../gradlew build
-</code></pre>
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span><span class="nb">pwd</span>
+~/myProject/src/main/java/org/project/stuff
+<span class="nv">$ </span>../../../../../../gradlew build
+</pre></div>
 
 <p>Again, with <code>gw</code> this becomes:</p>
 
-<pre><code>~/myProject/src/main/java/org/project/stuff$ gw build
-</code></pre>
+<div class="highlight highlight-bash"><pre><span class="nv">$ </span>gw build
+</pre></div>
+
+<p>[test][]</p>
 
 <h3>
 <a name="you-have-a-combination-of-the-above-problems" class="anchor" href="#you-have-a-combination-of-the-above-problems"><span class="octicon octicon-link"></span></a>You have a combination of the above problems</h3>
@@ -95,11 +156,11 @@ something similiar and provide the relative path to the <code>gradlew</code> scr
 day-to-day basis. Use your imagination.</p>
 
 <h3>
-<a name="typing-gradlew-to-run-the-gradle-wrapper-is-kind-of-inconvenient" class="anchor" href="#typing-gradlew-to-run-the-gradle-wrapper-is-kind-of-inconvenient"><span class="octicon octicon-link"></span></a>Typing <code>./gradlew</code> to run the gradle wrapper is kind of inconvenient</h3>
+<a name="typing-gradlew-to-run-the-gradle-wrapper-is-kind-of-inconvenient" class="anchor" href="#typing-gradlew-to-run-the-gradle-wrapper-is-kind-of-inconvenient"><span class="octicon octicon-link"></span></a>Typing <code>./gradlew</code> to run the Gradle wrapper is kind of inconvenient</h3>
 
 <p>Even with tab completion and sitting at the root of your project, you have to
 type at least <code>./gr&lt;tab&gt;</code>. It gets a bit worse if you happen to have a
-<code>gradle.properties</code> file, and with the gradle wrapper, you have a <code>gradle</code>
+<code>Gradle.properties</code> file, and with the Gradle wrapper, you have a <code>gradle</code>
 directory to contend with as well. A simple alias would solve this problem, but
 you still have the other (more annoying) issues to contend with.</p>
 
@@ -107,60 +168,25 @@ you still have the other (more annoying) issues to contend with.</p>
 <a name="you-meant-to-use-the-projects-gradlew-but-typed-gradle-instead" class="anchor" href="#you-meant-to-use-the-projects-gradlew-but-typed-gradle-instead"><span class="octicon octicon-link"></span></a>You meant to use the project's <code>gradlew</code>, but typed <code>gradle</code> instead</h3>
 
 <p>This can be a problem if the project you are building has customizations to the
-gradle wrapper or for some reason is only compatible with a certain version of
-gradle that is configured in the wrapper. If you know the project uses gradle, 
-you may be tempted to just use your own system's gradle binary. This might be ok,
-or it might cause the build to break, but if a project has a <code>gradlew</code>, it is a 
-pretty safe bet you should use it, and not whatever Gradle distribution you 
+Gradle wrapper or for some reason is only compatible with a certain version of
+Gradle that is configured in the wrapper. If you know the project uses Gradle,
+you may be tempted to just use your own system's Gradle binary. This might be
+ok, or it might cause the build to break, but if a project has a <code>gradlew</code>, it
+is a pretty safe bet you should use it, and not whatever Gradle distribution you
 happen to have installed on your system.</p>
 
-<h2>
-<a name="the-gw-payoff" class="anchor" href="#the-gw-payoff"><span class="octicon octicon-link"></span></a>The <code>gw</code> payoff</h2>
+<h1>
+<a name="the-gw-payoff" class="anchor" href="#the-gw-payoff"><span class="octicon octicon-link"></span></a>The <code>gw</code> payoff</h1>
 
-<p>Anywhere you happen to be on your project, you can run the gradle tasks of your
+<p>Anywhere you happen to be on your project, you can run the Gradle tasks of your
 project by typing <code>gw &lt;tasks&gt;</code>, regardless of whether you use the Gradle Wrapper
 in your project or not.</p>
 
 <p><code>gw</code> works by looking upwards from your current directory and will run the
-nearest <code>build.gradle</code> file with the nearest <code>gradlew</code>. If a <code>gradlew</code> cannot
-be found, it will run the nearest <code>build.gradle</code> with your system's gradle. This
-is probably always what you want to do if you are running gradle from within a
+nearest <code>build.Gradle</code> file with the nearest <code>gradlew</code>. If a <code>gradlew</code> cannot
+be found, it will run the nearest <code>build.Gradle</code> with your system's Gradle. This
+is probably always what you want to do if you are running Gradle from within a
 project's tree that uses the Gradle build system.</p>
-
-<h1>
-<a name="installing-gdub-from-source" class="anchor" href="#installing-gdub-from-source"><span class="octicon octicon-link"></span></a>Installing gdub from source</h1>
-
-<p>You will probably want to install <a href="http://www.gradle.org">Gradle</a> first. While
-this is not technically necessary if all your projects are using a Gradle
-Wrapper, it is a good idea to have Gradle available system-wide because some
-handy Gradle features are available outside the context of an existing project.</p>
-
-<p>Check out a copy of the gdub repository. Then, either add the gdub <code>bin</code>
-directory to your <code>$PATH</code>, or run the provided <code>install</code> command with the
-location to the prefix in which you want to install gdub.</p>
-
-<p>For example, to install gdub into <code>/usr/local</code>:</p>
-
-<pre><code>$ git clone https://github.com/dougborg/gdub.git
-$ cd gdub
-$ ./install /usr/local
-</code></pre>
-
-<p>Note that you may need to run <code>install</code> with <code>sudo</code> if you do not have
-permission to write to the installation prefix.</p>
-
-<h2>
-<a name="aliasing-the-gradle-command" class="anchor" href="#aliasing-the-gradle-command"><span class="octicon octicon-link"></span></a>Aliasing the <code>gradle</code> command</h2>
-
-<p>For maximum fidelity add a <code>gradle</code> alias to <code>gw</code> to your shell's configuration file.</p>
-
-<p>Example <em>bash</em>:</p>
-
-<div class="highlight highlight-bash"><pre><span class="nb">echo</span> <span class="s2">"alias gradle=gw"</span> &gt;&gt; ~/.bashrc
-<span class="nb">source</span> ~/.bashrc
-</pre></div>
-
-<p>From now on you can just type <code>gradle ...</code> from wherever you are and <code>gw</code> takes care of the rest. Happiness ensues!</p>
       </section>
     </div>
 
