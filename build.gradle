@@ -1,0 +1,108 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'com.kenshoo:gradle-fpm:0.4'
+    classpath 'org.ysb33r.gradle:bintray:1.5'
+    classpath 'org.apache.commons:commons-lang3:3.0'
+  }
+}
+
+apply plugin: 'base'
+apply plugin: 'distribution'
+apply plugin: 'fpm-packaging'
+apply plugin: 'org.ysb33r.bintray'
+
+group = 'org.dougborg'
+version = '0.1.1'
+
+wrapper.gradleVersion = '2.2.1'
+
+defaultTasks 'distZip', 'distTar', 'debian', 'rpm'
+
+import org.apache.commons.lang3.text.WordUtils
+
+ext {
+  gdubDescription = WordUtils.wrap( '''\
+    gdub (gw on the command line) is a gradle / gradlew wrapper. Not to be
+    confused with the Gradle Wrapper, gw uses the Gradle Wrapper on projects
+    where one is configured, and falls back to use the gradle from the $PATH if
+    a wrapper is not available. Also, gw is 66% shorter to type than gradle and
+    78% shorter to type than ./gradlew.
+    '''.replaceAll(/\s+/, ' ').replaceAll("\n",''), 80
+  )
+
+  gdubLicense = 'MIT'
+  gdubEmail = 'dougborg@dougborg.org'
+  gdubAuthor = "Douglas Borg <${gdubEmail}>"
+  gdubURL = 'http://gdub.rocks'
+
+  isMaster = System.env.'TRAVIS_BRANCH' == "master"
+  isRelease = System.env.'TRAVIS_TAG' ==~ /v\d+\.\d+\.\d+/
+  isCI = System.env.'CI'?.toBoolean()
+}
+
+packaging {
+  baseDir = installDist.destinationDir
+  prefix = '/usr/local'
+  extraOptions = [
+    '--maintainer': gdubAuthor,
+    '--license': gdubLicense,
+    '--description': gdubDescription,
+    '--url': gdubURL,
+    '--provides': 'gw',
+    '--architecture': 'all',
+    '--deb-recommends': 'gradle'
+  ]
+}
+
+distributions {
+  main {
+    contents {
+      from projectDir
+      include 'bin/*', 'README.md', 'LICENSE', 'install', 'package.json'
+    }
+  }
+}
+
+distTar {
+  compression 'gzip'
+  extension 'tar.gz'
+}
+
+rpm.dependsOn installDist
+debian.dependsOn installDist
+
+import org.ysb33r.gradle.bintray.BintrayGenericUpload
+
+task uploadArchives(type: BintrayGenericUpload) {
+  dependsOn distZip, distTar, debian, rpm
+  onlyIf { isRelease }
+
+  username bintrayUser
+  apiKey   bintrayKey
+
+  description gdubDescription
+  repoOwner   'dougborg'
+  repoName    'gdub'
+  packageName name
+
+  tags     'gradle', 'gradlew', 'sh', 'bash'
+  vcsUrl   'https://github.com/dougborg/gdub.git'
+  licenses gdubLicense
+
+  updatePackage true
+  sha1          true
+  gpgSign       false // TODO: Sign binaries with gpg
+
+  sources distZip.outputs.files
+  sources distTar.outputs.files
+  sources "${buildDir}/linux-package/*"
+}
+
+
+task ci {
+  dependsOn uploadArchives
+}
