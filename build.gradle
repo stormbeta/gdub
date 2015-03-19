@@ -1,61 +1,30 @@
-buildscript {
-  repositories {
-    jcenter()
-  }
-
-  dependencies {
-    classpath 'com.kenshoo:gradle-fpm:0.4'
-    classpath 'org.ysb33r.gradle:bintray:1.5'
-    classpath 'org.apache.commons:commons-lang3:3.0'
-  }
+plugins {
+  id 'distribution'
+  id 'nebula.os-package' version '2.2.0'
+  id 'org.ysb33r.bintray' version '1.5'
+  id 'com.readytalk.ci' version '0.2.3'
 }
-
-apply plugin: 'base'
-apply plugin: 'distribution'
-apply plugin: 'fpm-packaging'
-apply plugin: 'org.ysb33r.bintray'
 
 group = 'org.dougborg'
 version = '0.1.1'
 
-wrapper.gradleVersion = '2.2.1'
+wrapper.gradleVersion = '2.3'
 
-defaultTasks 'distZip', 'distTar', 'debian', 'rpm'
-
-import org.apache.commons.lang3.text.WordUtils
+build.dependsOn 'distZip', 'distTar', 'buildDeb', 'buildRpm'
+defaultTasks 'build'
 
 ext {
-  gdubDescription = WordUtils.wrap( '''\
+  gdubDescription = '''\
     gdub (gw on the command line) is a gradle / gradlew wrapper. Not to be
     confused with the Gradle Wrapper, gw uses the Gradle Wrapper on projects
     where one is configured, and falls back to use the gradle from the $PATH if
     a wrapper is not available. Also, gw is 66% shorter to type than gradle and
-    78% shorter to type than ./gradlew.
-    '''.replaceAll(/\s+/, ' ').replaceAll("\n",''), 80
-  )
+    78% shorter to type than ./gradlew.'''.stripIndent()
 
   gdubLicense = 'MIT'
   gdubEmail = 'dougborg@dougborg.org'
   gdubAuthor = "Douglas Borg <${gdubEmail}>"
   gdubURL = 'http://gdub.rocks'
-
-  isMaster = System.env.'TRAVIS_BRANCH' == "master"
-  isRelease = System.env.'TRAVIS_TAG' ==~ /v\d+\.\d+\.\d+/
-  isCI = System.env.'CI'?.toBoolean()
-}
-
-packaging {
-  baseDir = installDist.destinationDir
-  prefix = '/usr/local'
-  extraOptions = [
-    '--maintainer': gdubAuthor,
-    '--license': gdubLicense,
-    '--description': gdubDescription,
-    '--url': gdubURL,
-    '--provides': 'gw',
-    '--architecture': 'all',
-    '--deb-recommends': 'gradle'
-  ]
 }
 
 distributions {
@@ -72,13 +41,21 @@ distTar {
   extension 'tar.gz'
 }
 
-rpm.dependsOn installDist
-debian.dependsOn installDist
+ospackage {
+  summary = "Convenience script for gradle / ./gradlew"
+  //packageDescription = gdubDescription
+  license = gdubLicense
+  packager = gdubAuthor
+  url = gdubURL
+  from('bin') {
+    into '/usr/local/bin'
+  }
+}
+
 
 import org.ysb33r.gradle.bintray.BintrayGenericUpload
-
 task uploadArchives(type: BintrayGenericUpload) {
-  dependsOn distZip, distTar, debian, rpm
+  dependsOn distZip, distTar, buildDeb, buildRpm
   onlyIf { isRelease }
 
   username bintrayUser
@@ -99,10 +76,5 @@ task uploadArchives(type: BintrayGenericUpload) {
 
   sources distZip.outputs.files
   sources distTar.outputs.files
-  sources "${buildDir}/linux-package/*"
 }
 
-
-task ci {
-  dependsOn uploadArchives
-}
