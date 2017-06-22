@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+# Modified version of https://github.com/dougborg/gdub for maven
+
+# DEFAULTS may be overridden by calling environment.
+MAVEN="${MAVEN:-mvn}"
+MVNW="${MVNW:-mvnw}"
+MAVEN_POM="${MAVEN_POM:-pom.xml}"
+MW_ARGS=${@}
+
+err() {
+  echo -e "${@}" >&2
+}
+
+lookup() {
+  local file="${1}"
+  local curr_path="${2}"
+  [[ -z "${curr_path}" ]] && curr_path="${PWD}"
+
+  # Search recursively upwards for file.
+  until [[ "${curr_path}" == "/" ]]; do
+    if [[ -e "${curr_path}/${file}" ]]; then
+      echo "${curr_path}/${file}"
+      break
+    else
+      curr_path=$(dirname "${curr_path}")
+    fi
+  done
+}
+
+select_maven() {
+  local dir="${1}"
+
+  # Use project's gradlew if found.
+  local mavenw="$(lookup ${MVNW} ${dir})"
+  if [[ -z "${mavenw}" ]]; then
+    err "There is no ${MVNW} set up for this project. You may want to consider setting one up."
+    err "See: "
+  else
+    echo "${mavenw}"
+    return 0
+  fi
+
+  # Deal with a missing wrapper by defaulting to system maven
+  local maven="$(command -v mvn 2> /dev/null)"
+  if [[ -z "${maven}" ]];  then
+    err "'${MAVEN}' not installed or not available in your PATH:"
+    err "${PATH}"
+    return 1
+  else
+    echo "${maven}"
+    return 0
+  fi
+}
+
+function execute_maven() {
+  local pom="$(lookup "${MAVEN_POM}")"
+  local maven="$(select_maven "${working_dir}")"
+  local build_args=( ${BUILD_ARG} "$@" )
+
+  if [[ -n "${pom}" ]]; then
+    # Maven pom present, go to it
+    cd "$(dirname "${pom}")"
+  else
+    err "Unable to find suitable ${MAVEN_POM}"
+  fi
+
+  # Say what we are gonna do, then do it.
+  err "Using maven at '${maven}' to run pom '${pom}':\n"
+  if [[ -n "build_args[@]" ]]; then
+    "${maven}" "${build_args[@]}"
+  else
+    "${maven}"
+  fi
+}
+
+# mw may be sourced from other scripts as a library to select / run mvn(w).
+if [[ ${BASH_SOURCE[0]} != $0 ]]; then
+  export -f execute_maven select_maven lookup err
+else
+  set -e
+  execute_maven "$@"
+  exit $?
+fi

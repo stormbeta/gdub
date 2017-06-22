@@ -1,7 +1,7 @@
 {
-  "name": "gdub",
+  "name": "mdub",
   "version": "0.1.0",
-  "description": "A gradlew / gradle wrapper. http://www.gdub.rocks",
-  "scripts": [ "gw" ],
+  "description": "A mvnw / maven wrapper, inspired by gdub: https://github.com/dougborg/gdub",
+  "scripts": [ "mw" ],
   "install": "./install"
 }
